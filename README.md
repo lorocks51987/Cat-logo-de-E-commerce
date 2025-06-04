@@ -29,12 +29,12 @@ Um e-commerce moderno desenvolvido com Vue.js e Tailwind CSS, oferecendo uma exp
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/shopvue.git
+git clone https://github.com/lorocks51987/Cat-logo-de-E-commerce.git
 ```
 
 2. Entre no diretório do projeto:
 ```bash
-cd shopvue
+cd Cat-logo-de-E-commerce
 ```
 
 3. Instale as dependências:
@@ -50,6 +50,17 @@ npm run dev
 ## 🎥 Demonstração
 
 [Link do vídeo de demonstração será adicionado aqui]
+
+## 📸 Screenshots
+
+### Página Inicial
+![Página Inicial](screenshots/home.png)
+
+### Detalhes do Produto
+![Detalhes do Produto](screenshots/product-detail.png)
+
+### Carrinho de Compras
+![Carrinho de Compras](screenshots/cart.png)
 
 ## 📦 Estrutura do Projeto
 
