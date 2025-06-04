@@ -1,24 +1,44 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <!-- Filtros e Ordenação -->
-    <div class="mb-8 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center space-x-4">
-        <select :value="selectedCategory" @change="handleCategoryChange"
-          class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    <div class="mb-8 flex flex-col sm:flex-row gap-4">
+      <!-- Categorias -->
+      <div class="relative">
+        <select
+          v-model="selectedCategory"
+          @change="handleCategoryChange"
+          class="appearance-none bg-slate-800 text-slate-50 px-4 py-2 rounded-xl pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48"
+        >
           <option value="">Todas as Categorias</option>
           <option v-for="category in categories" :key="category.value" :value="category.value">
             {{ category.label }}
           </option>
         </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
 
-        <select v-model="sortBy" @change="handleSort"
-          class="bg-white border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+      <!-- Ordenação -->
+      <div class="relative">
+        <select
+          v-model="sortBy"
+          @change="handleSort"
+          class="appearance-none bg-slate-800 text-slate-50 px-4 py-2 rounded-xl pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-48"
+        >
           <option value="">Ordenar por</option>
-          <option value="price-asc">Preço: Menor para Maior</option>
-          <option value="price-desc">Preço: Maior para Menor</option>
-          <option value="name-asc">Nome: A-Z</option>
-          <option value="name-desc">Nome: Z-A</option>
+          <option value="price-asc">Menor Preço</option>
+          <option value="price-desc">Maior Preço</option>
+          <option value="title-asc">Nome A-Z</option>
+          <option value="title-desc">Nome Z-A</option>
         </select>
+        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
       </div>
     </div>
 
@@ -28,23 +48,42 @@
     </div>
 
     <!-- Paginação -->
-    <div class="mt-8 flex justify-center">
-      <div class="flex space-x-2">
-        <button v-for="page in totalPages" :key="page" @click="handlePageChange(page)" :class="[
-          'px-4 py-2 rounded-lg',
+    <div v-if="totalPages > 1" class="mt-8 flex justify-center space-x-2">
+      <button
+        @click="handlePageChange(currentPage - 1)"
+        :disabled="currentPage === 1"
+        class="px-4 py-2 rounded-xl bg-slate-800 text-slate-50 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        Anterior
+      </button>
+      
+      <button
+        v-for="page in totalPages"
+        :key="page"
+        @click="handlePageChange(page)"
+        :class="[
+          'px-4 py-2 rounded-xl transition-colors',
           currentPage === page
-            ? 'bg-primary text-white'
-            : 'bg-white text-gray-700 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600'
-        ]">
-          {{ page }}
-        </button>
-      </div>
+            ? 'bg-blue-600 text-white'
+            : 'bg-slate-800 text-slate-50 hover:bg-slate-700'
+        ]"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        @click="handlePageChange(currentPage + 1)"
+        :disabled="currentPage === totalPages"
+        class="px-4 py-2 rounded-xl bg-slate-800 text-slate-50 hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
+        Próxima
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 import ProductCard from './ProductCard.vue'
 
 const props = defineProps({
@@ -56,6 +95,10 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  selectedCategory: {
+    type: String,
+    required: true
+  },
   currentPage: {
     type: Number,
     required: true
@@ -64,29 +107,38 @@ const props = defineProps({
     type: Number,
     required: true
   },
-  selectedCategory: {
+  sortBy: {
     type: String,
     required: true
   }
 })
 
-const emit = defineEmits(['category-change', 'sort', 'page-change', 'add-to-cart'])
+const emit = defineEmits(['category-change', 'add-to-cart', 'page-change', 'sort'])
 
-const sortBy = ref('')
+const sortBy = ref(props.sortBy)
+const selectedCategory = ref(props.selectedCategory)
+
+watch(() => props.sortBy, (newValue) => {
+  sortBy.value = newValue
+})
+
+watch(() => props.selectedCategory, (newValue) => {
+  selectedCategory.value = newValue
+})
 
 const handleCategoryChange = () => {
-  emit('category-change', props.selectedCategory)
+  emit('category-change', selectedCategory.value)
 }
 
-const handleSort = () => {
-  emit('sort', sortBy.value)
+const handleAddToCart = (product) => {
+  emit('add-to-cart', product)
 }
 
 const handlePageChange = (page) => {
   emit('page-change', page)
 }
 
-const handleAddToCart = (product) => {
-  emit('add-to-cart', product)
+const handleSort = () => {
+  emit('sort', sortBy.value)
 }
 </script>

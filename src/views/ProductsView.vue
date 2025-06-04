@@ -12,9 +12,18 @@
       </button>
     </div>
 
-    <ProductGrid :products="products" :categories="formattedCategories" :current-page="currentPage"
-      :total-pages="totalPages" :selected-category="selectedCategory" @category-change="handleCategoryChange"
-      @sort="handleSort" @page-change="handlePageChange" @add-to-cart="handleAddToCart" />
+    <ProductGrid 
+      :products="products" 
+      :categories="formattedCategories" 
+      :selected-category="selectedCategory"
+      :current-page="currentPage"
+      :total-pages="totalPages"
+      :sort-by="sortBy"
+      @category-change="handleCategoryChange" 
+      @add-to-cart="handleAddToCart"
+      @page-change="handlePageChange"
+      @sort="handleSort"
+    />
   </div>
 </template>
 
@@ -23,6 +32,7 @@ import { ref, onMounted, watch, computed, defineEmits } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import ProductGrid from '../components/ProductGrid.vue'
+import Swal from 'sweetalert2'
 
 const emit = defineEmits(['add-to-cart'])
 const route = useRoute()
@@ -30,12 +40,12 @@ const router = useRouter()
 
 const products = ref([])
 const categories = ref([])
-const currentPage = ref(1)
-const totalPages = ref(1)
 const selectedCategory = ref('')
+const currentPage = ref(1)
+const itemsPerPage = 12
+const totalProducts = ref(0)
 const sortBy = ref('')
 
-// Computed property para formatar as categorias
 const formattedCategories = computed(() => {
   return categories.value.map(category => ({
     value: category.slug,
@@ -43,84 +53,61 @@ const formattedCategories = computed(() => {
   }))
 })
 
-// Carregar categorias
+const totalPages = computed(() => {
+  return Math.ceil(totalProducts.value / itemsPerPage)
+})
+
 const loadCategories = async () => {
   try {
     const response = await axios.get('https://dummyjson.com/products/categories')
     categories.value = response.data
   } catch (error) {
     console.error('Erro ao carregar categorias:', error)
+    Swal.fire('Erro!', 'Não foi possível carregar as categorias.', 'error')
   }
 }
 
-// Carregar produtos
 const loadProducts = async () => {
   try {
-    const params = new URLSearchParams()
-    params.append('limit', 12)
-
+    const skip = (currentPage.value - 1) * itemsPerPage
     let url = 'https://dummyjson.com/products'
-
-    // Lógica mais direta para determinar o endpoint
+    
     if (selectedCategory.value) {
       url = `https://dummyjson.com/products/category/${selectedCategory.value}`
-      // Na busca por categoria, a paginação pode ser diferente ou não existir da mesma forma que a listagem geral na API DummyJSON.
-      // Para simplificar, na busca por categoria, vamos carregar todos os produtos da categoria (se a API suportar sem limite, ou um limite alto)
-      // ou manter a paginação, mas com a ressalva que pode não ser 100% precisa dependendo da API real.
-      // Mantendo a paginação por enquanto para não remover a funcionalidade, mas simplificando a lógica de URL/params.
-      params.append('skip', (currentPage.value - 1) * 12)
     } else if (route.query.q) {
       url = 'https://dummyjson.com/products/search'
-      params.append('q', route.query.q)
-      // Na busca geral, a API DummyJSON lida com paginação de forma diferente.
-      // Para simplificar, na busca geral, não vamos usar paginação avançada aqui, apenas carregar os resultados da primeira página.
-      params.delete('limit')
-      params.delete('skip')
-    } else {
-      // Listagem geral com paginação
-      params.append('skip', (currentPage.value - 1) * 12)
+      const response = await axios.get(`${url}?q=${route.query.q}&skip=${skip}&limit=${itemsPerPage}`)
+      products.value = response.data.products
+      totalProducts.value = response.data.total
+      return
     }
 
-    const response = await axios.get(`${url}?${params.toString()}`)
-
+    const response = await axios.get(`${url}?skip=${skip}&limit=${itemsPerPage}`)
     products.value = response.data.products
-
-    // Lógica mais direta para calcular totalPages baseado no endpoint chamado
-    if (route.query.q) {
-      // Na busca geral simplificada, consideramos 1 página
-      totalPages.value = 1;
-    } else {
-      // Para listagem geral ou por categoria (com paginação mantida), calculamos normalmente
-      totalPages.value = Math.ceil(response.data.total / 12)
-    }
-
+    totalProducts.value = response.data.total
   } catch (error) {
     console.error('Erro ao carregar produtos:', error)
-    // Em caso de erro, limpar produtos para indicar que não foi possível carregar
     products.value = []
-    totalPages.value = 0
+    totalProducts.value = 0
+    Swal.fire('Erro!', 'Não foi possível carregar os produtos.', 'error')
   }
 }
 
-// Observar mudanças na categoria
 watch(selectedCategory, () => {
   currentPage.value = 1
   loadProducts()
 })
 
-// Observar mudanças na busca por rota
 watch(
   () => route.query.q,
   (newSearchTerm, oldSearchTerm) => {
-    // Apenas recarregar produtos se o termo de busca realmente mudou
     if (newSearchTerm !== oldSearchTerm) {
-      currentPage.value = 1;
-      loadProducts();
+      currentPage.value = 1
+      loadProducts()
     }
   }
 )
 
-// Observar mudanças na ordenação
 watch(sortBy, () => {
   if (sortBy.value) {
     const [field, order] = sortBy.value.split('-')
@@ -136,15 +123,24 @@ watch(sortBy, () => {
 
 const handleCategoryChange = (category) => {
   selectedCategory.value = category
-}
-
-const handleSort = (sort) => {
-  sortBy.value = sort
+  if (category) {
+    router.push({ query: { ...route.query, category } })
+  } else {
+    const query = { ...route.query }
+    delete query.category
+    router.push({ query })
+  }
+  currentPage.value = 1
+  loadProducts()
 }
 
 const handlePageChange = (page) => {
   currentPage.value = page
   loadProducts()
+}
+
+const handleSort = (sort) => {
+  sortBy.value = sort
 }
 
 const handleAddToCart = (product) => {

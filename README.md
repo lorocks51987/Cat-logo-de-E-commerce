@@ -1,61 +1,64 @@
-# Catálogo de E-commerce
+# ShopVue - E-commerce com Vue.js
 
-Este projeto consiste em um catálogo de produtos de e-commerce desenvolvido utilizando Vue.js 3, Vite, Axios e TailwindCSS, consumindo a API DummyJSON.
+Um e-commerce moderno desenvolvido com Vue.js e Tailwind CSS, oferecendo uma experiência de compra intuitiva e responsiva.
 
-## Funcionalidades
+## 🚀 Funcionalidades
 
-- Listagem de produtos com visualização em grid e paginação.
-- Visualização de detalhes de cada produto.
-- Navegação por categorias de produtos.
-- Busca de produtos por nome.
-- Carrinho de compras (funcionalidade opcional implementada).
-- Ordenação de produtos por diferentes critérios (funcionalidade opcional implementada).
-- Interface responsiva com tema claro e escuro.
+- 📱 Interface responsiva
+- 🔍 Busca de produtos
+- 🏷️ Filtros por categoria e marca
+- 📦 Carrinho de compras
+- 💾 Persistência de dados no localStorage
+- 🎨 Design moderno com Tailwind CSS
+- 🔄 Atualização em tempo real
 
-## Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas
 
 - Vue.js 3
-- Vite (como bundler)
-- Axios (para consumo da API)
-- TailwindCSS (para estilização)
-- Vue Router (para navegação entre páginas)
+- Tailwind CSS
+- Vue Router
+- Axios
+- SweetAlert2
 
-## Como Rodar a Aplicação Localmente
+## 📋 Pré-requisitos
 
-1. Clone este repositório:
+- Node.js (versão 14 ou superior)
+- npm ou yarn
 
+## 🔧 Instalação
+
+1. Clone o repositório:
 ```bash
-git clone [URL_DO_SEU_REPOSITÓRIO]
+git clone https://github.com/seu-usuario/shopvue.git
 ```
 
-2. Navegue até o diretório do projeto:
-
+2. Entre no diretório do projeto:
 ```bash
-cd CatalogoEcommerceP2
+cd shopvue
 ```
 
 3. Instale as dependências:
-
 ```bash
 npm install
 ```
 
 4. Inicie o servidor de desenvolvimento:
-
 ```bash
 npm run dev
 ```
 
-A aplicação estará disponível em `http://localhost:5173`.
+## 🎥 Demonstração
 
-## Prints das Telas
+[Link do vídeo de demonstração será adicionado aqui]
 
-<!-- Adicione aqui prints das telas principais da aplicação (listagem, detalhes, carrinho, busca, etc.) -->
+## 📦 Estrutura do Projeto
 
-## Vídeo de Demonstração
+```
+src/
+├── assets/        # Arquivos estáticos
+├── components/    # Componentes Vue
+├── views/         # Páginas da aplicação
+├── router/        # Configuração de rotas
+└── App.vue        # Componente principal
+```
 
-<!-- Adicione aqui o link para o vídeo de demonstração no YouTube -->
-
-## Autores
-
-<!-- Adicione os nomes dos membros da dupla aqui --> 

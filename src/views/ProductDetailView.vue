@@ -33,12 +33,15 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import ProductDetail from '../components/ProductDetail.vue'
+import Swal from 'sweetalert2'
 
 const route = useRoute()
 const router = useRouter()
 const product = ref(null)
 const loading = ref(true)
 const error = ref(null)
+
+const emit = defineEmits(['add-to-cart'])
 
 const loadProduct = async () => {
   loading.value = true
@@ -50,14 +53,14 @@ const loadProduct = async () => {
   } catch (err) {
     error.value = 'Erro ao carregar o produto. Por favor, tente novamente.'
     console.error('Erro ao carregar produto:', err)
+    Swal.fire('Erro!', 'Não foi possível carregar o produto.', 'error')
   } finally {
     loading.value = false
   }
 }
 
-const handleAddToCart = (product) => {
-  // Emitir evento para o componente pai
-  emit('add-to-cart', product)
+const handleAddToCart = (productData) => {
+  emit('add-to-cart', productData)
 }
 
 const goToHome = () => {
