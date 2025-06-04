@@ -54,13 +54,13 @@ npm run dev
 ## 📸 Screenshots
 
 ### Página Inicial
-![Página Inicial](screenshots/home.png)
+![image](https://github.com/user-attachments/assets/d7b0d574-a6fc-4c20-84c5-4570f2cb9284)
 
 ### Detalhes do Produto
-![Detalhes do Produto](screenshots/product-detail.png)
+![image](https://github.com/user-attachments/assets/1dcb5c39-a1ed-40bf-875b-b26ce37b1794)
 
 ### Carrinho de Compras
-![Carrinho de Compras](screenshots/cart.png)
+![image](https://github.com/user-attachments/assets/2f75123a-c323-46af-b7c3-19c6c9beae34)
 
 ## 📦 Estrutura do Projeto
 
